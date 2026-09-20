@@ -1,0 +1,60 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource path="res://core/main.gd" type="Script" id="1_main"]
+[ext_resource path="res://systems/dialogue/dialogue_ui.tscn" type="PackedScene" id="2_dialogue"]
+[ext_resource path="res://systems/combat/combat_hud.tscn" type="PackedScene" id="3_combat_hud"]
+[ext_resource path="res://systems/inventory/inventory.gd" type="Script" id="4_inventory"]
+[ext_resource path="res://systems/inventory/inventory_ui.tscn" type="PackedScene" id="5_inventory_ui"]
+[ext_resource path="res://systems/save/save_system.gd" type="Script" id="6_save"]
+[ext_resource path="res://systems/equipment/equipment.gd" type="Script" id="10_equipment"]
+[ext_resource path="res://systems/skills/skill_system.gd" type="Script" id="11_skills"]
+[ext_resource path="res://systems/skills/skill_hotbar.tscn" type="PackedScene" id="12_hotbar"]
+[ext_resource path="res://systems/player/player_hud.tscn" type="PackedScene" id="7_player_hud"]
+[ext_resource path="res://systems/ui/ro_menu_bar.tscn" type="PackedScene" id="8_ro_menu"]
+[ext_resource path="res://systems/ui/ro_windows.tscn" type="PackedScene" id="9_ro_windows"]
+[ext_resource path="res://systems/mobile/mobile_ui.tscn" type="PackedScene" id="13_mobile_ui"]
+[ext_resource path="res://systems/mobile/mobile_camera.gd" type="Script" id="14_mobile_camera"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="MobileCamera" type="Camera2D" parent="."]
+script = ExtResource("14_mobile_camera")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="MapRoot" type="Node2D" parent="World"]
+
+[node name="ActorRoot" type="Node2D" parent="World"]
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="Inventory" type="Node" parent="Systems"]
+script = ExtResource("4_inventory")
+
+[node name="Equipment" type="Node" parent="Systems"]
+script = ExtResource("10_equipment")
+
+[node name="SkillSystem" type="Node" parent="Systems"]
+script = ExtResource("11_skills")
+
+[node name="SaveSystem" type="Node" parent="Systems"]
+script = ExtResource("6_save")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="PlayerHUD" parent="UI" instance=ExtResource("7_player_hud")]
+
+[node name="CombatHUD" parent="UI" instance=ExtResource("3_combat_hud")]
+
+[node name="ROMenuBar" parent="UI" instance=ExtResource("8_ro_menu")]
+
+[node name="ROWindows" parent="UI" instance=ExtResource("9_ro_windows")]
+
+[node name="SkillHotbar" parent="UI" instance=ExtResource("12_hotbar")]
+
+[node name="DialogueUI" parent="UI" instance=ExtResource("2_dialogue")]
+
+[node name="InventoryUI" parent="UI" instance=ExtResource("5_inventory_ui")]
+
+[node name="MobileUI" parent="UI" instance=ExtResource("13_mobile_ui")]
