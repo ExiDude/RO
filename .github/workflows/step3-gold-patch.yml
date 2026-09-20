@@ -96,6 +96,44 @@ jobs:
 
           print(f"PASS: {len(gd_files)} patched GDScript files, {len(svgs)} SVG assets, South Field contract OK")
 
+      - name: Godot 4.7.1 parser check
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 -o /tmp/godot.zip "https://github.com/godotengine/godot/releases/download/4.7.1-stable/Godot_v4.7.1-stable_linux.x86_64.zip"
+          echo "c7ff14fd28472c8d4f193043de30278dcf7e5241a1dcf7566b02e27addaa33ba  /tmp/godot.zip" | sha256sum -c -
+          mkdir -p /tmp/godot-bin
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          GODOT="$(find /tmp/godot-bin -maxdepth 1 -type f -name 'Godot*' | head -n 1)"
+          chmod +x "$GODOT"
+          "$GODOT" --version
+
+          mkdir -p /tmp/ro-step3-qa
+          cp -R payload/. /tmp/ro-step3-qa/
+          cat > /tmp/ro-step3-qa/project.godot <<'EOF'
+          config_version=5
+          [application]
+          config/name="RO Step3 QA"
+          [rendering]
+          renderer/rendering_method="gl_compatibility"
+          EOF
+
+          scripts=(
+            systems/mobile/mobile_mode.gd
+            systems/mobile/mobile_camera.gd
+            systems/mobile/mobile_minimap.gd
+            systems/mobile/mobile_ui.gd
+            systems/player/player_hud.gd
+            systems/combat/combat_hud.gd
+            systems/ui/ro_menu_bar.gd
+            systems/skills/skill_hotbar.gd
+            world/maps/map_ambience.gd
+          )
+          for script in "${scripts[@]}"; do
+            echo "Checking $script"
+            "$GODOT" --headless --path /tmp/ro-step3-qa --script "res://$script" --check-only
+          done
+
       - name: Validate PowerShell syntax
         shell: pwsh
         run: |
