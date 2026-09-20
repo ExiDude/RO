@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+<defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e1d4b8"/><stop offset=".48" stop-color="#c9b997"/><stop offset="1" stop-color="#9a8463"/></linearGradient><linearGradient id="m"><stop stop-color="#756047"/><stop offset=".5" stop-color="#34281f"/><stop offset="1" stop-color="#947451"/></linearGradient></defs>
+<rect x="1" y="1" width="510" height="254" rx="13" fill="url(#m)" stroke="#17100d" stroke-width="2"/>
+<rect x="8" y="8" width="496" height="240" rx="9" fill="url(#p)" stroke="#bca984" stroke-width="2"/>
+<rect x="14" y="14" width="484" height="228" rx="6" fill="none" stroke="#51402f" stroke-width="2" opacity=".8"/>
+<path d="M6 38Q24 34 34 8M6 218Q24 222 34 248M506 38Q488 34 478 8M506 218Q488 222 478 248" fill="none" stroke="#b18a5e" stroke-width="5"/>
+<circle cx="18" cy="18" r="5" fill="#5e1720"/><circle cx="494" cy="18" r="5" fill="#5e1720"/><circle cx="18" cy="238" r="5" fill="#5e1720"/><circle cx="494" cy="238" r="5" fill="#5e1720"/>
+</svg>
