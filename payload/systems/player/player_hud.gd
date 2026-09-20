@@ -291,7 +291,9 @@ func _show_toast(message: String, important: bool) -> void:
 
     _toast_tween = create_tween()
     _toast_tween.set_parallel(true)
-    var toast_target_y: float = event_toast.position.y if _mobile_mode else 58.0\n    var toast_start_y: float = toast_target_y + 12.0\n    _toast_tween.tween_property(event_toast, "position:y", toast_target_y, 0.18).from(toast_start_y).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+    var toast_target_y: float = event_toast.position.y if _mobile_mode else 58.0
+    var toast_start_y: float = toast_target_y + 12.0
+    _toast_tween.tween_property(event_toast, "position:y", toast_target_y, 0.18).from(toast_start_y).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
     _toast_tween.tween_property(event_toast, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
     _toast_fade_tween = create_tween()
