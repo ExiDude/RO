@@ -1,0 +1,22 @@
+# STEP 3 – Gold Mobile QA Checklist
+
+- [x] Mobile virtual size: 720 × 1280
+- [x] Sensor portrait configured
+- [x] Explicit touch handling; no touch→mouse double firing
+- [x] MobileCamera scene integration
+- [x] Camera follows player and respects playable map rectangle
+- [x] Safe-area calculation present
+- [x] Player HUD adapts to safe area
+- [x] Target HUD adapts to safe area
+- [x] Hotbar/menu adapt to bottom safe area
+- [x] Mobile minimap added
+- [x] South Field expanded to 1440 × 1920
+- [x] Six Poring spawns
+- [x] Horror-"ill" ambience added
+- [x] Vector/SVG UI skin for crisp scaling
+- [x] Save format unchanged by Step-3 patch
+- [x] Static checker updated from old landscape contract to portrait contract
+- [x] mobile_ui.gd event-log declaration corrected
+- [x] Mobile toast no longer snaps back to fixed desktop Y position
+- [ ] Godot 4.7.1 editor/import runtime test — must be run where Godot is available
+- [ ] Physical Android device safe-area/haptic verification
