@@ -58,6 +58,8 @@ jobs:
           assert 'var _event_log: Label = null' in ui
           assert 'attack_selected_target_with_approach' in ui
           assert 'get_safe_margins' in ui
+          player_hud = (root/"systems/player/player_hud.gd").read_text(encoding="utf-8")
+          assert r'58.0\n    var toast_start_y' not in player_hud
 
           mode = (root/"systems/mobile/mobile_mode.gd").read_text(encoding="utf-8")
           assert 'get_display_safe_area' in mode
