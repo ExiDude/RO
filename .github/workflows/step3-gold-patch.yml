@@ -1,0 +1,155 @@
+name: Step 3 Gold Patch Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Step 3 payload
+        shell: python
+        run: |
+          from pathlib import Path
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+
+          root = Path("payload")
+          required = [
+              root/"project.godot",
+              root/"core/main.gd",
+              root/"core/main.tscn",
+              root/"systems/mobile/mobile_mode.gd",
+              root/"systems/mobile/mobile_camera.gd",
+              root/"systems/mobile/mobile_minimap.gd",
+              root/"systems/mobile/mobile_ui.gd",
+              root/"systems/mobile/mobile_ui.tscn",
+              root/"systems/player/player_hud.gd",
+              root/"systems/combat/combat_hud.gd",
+              root/"systems/ui/ro_menu_bar.gd",
+              root/"systems/skills/skill_hotbar.gd",
+              root/"data/maps/south_field.json",
+              root/"world/maps/map_ambience.gd",
+              root/"tools/static_project_check.ps1",
+              root/"TEST_RAGNAROK.bat",
+          ]
+          missing = [str(p) for p in required if not p.is_file()]
+          assert not missing, f"Missing payload files: {missing}"
+
+          project = (root/"project.godot").read_text(encoding="utf-8")
+          assert 'window/handheld/orientation=5' in project
+          assert 'window/stretch/aspect="expand"' in project
+          assert 'pointing/emulate_mouse_from_touch=false' in project
+
+          main = (root/"core/main.gd").read_text(encoding="utf-8")
+          assert 'MOBILE_VIRTUAL_SIZE: Vector2i = Vector2i(720, 1280)' in main
+          assert 'CONTENT_SCALE_MODE_CANVAS_ITEMS' in main
+
+          ui = (root/"systems/mobile/mobile_ui.gd").read_text(encoding="utf-8")
+          assert 'var _event_log: Label = null' in ui
+          assert 'attack_selected_target_with_approach' in ui
+          assert 'get_safe_margins' in ui
+
+          mode = (root/"systems/mobile/mobile_mode.gd").read_text(encoding="utf-8")
+          assert 'get_display_safe_area' in mode
+
+          scene = (root/"core/main.tscn").read_text(encoding="utf-8")
+          assert 'systems/mobile/mobile_camera.gd' in scene
+          assert 'systems/mobile/mobile_ui.tscn' in scene
+
+          south = json.loads((root/"data/maps/south_field.json").read_text(encoding="utf-8"))
+          assert south["size"] == [1440, 1920]
+          assert south["ambience"] == "ill_field"
+          assert len(south["monsters"]) >= 6
+          assert len(south["blockers"]) >= 4
+
+          gd_files = list(root.rglob("*.gd"))
+          inference = []
+          for p in gd_files:
+              for i,line in enumerate(p.read_text(encoding="utf-8").splitlines(),1):
+                  if ":=" in line:
+                      inference.append(f"{p}:{i}")
+          assert not inference, f"Implicit Variant inference: {inference}"
+
+          svgs = list((root/"assets/ui/ill_mobile").glob("*.svg"))
+          assert len(svgs) >= 16, f"Expected >=16 SVG assets, got {len(svgs)}"
+          for p in svgs:
+              ET.parse(p)
+
+          refs = set()
+          rx = re.compile(r'res://assets/ui/ill_mobile/([A-Za-z0-9_.-]+\.svg)')
+          for p in gd_files:
+              refs.update(rx.findall(p.read_text(encoding="utf-8")))
+          available = {p.name for p in svgs}
+          assert refs <= available, f"Missing Step-3 SVG refs: {sorted(refs-available)}"
+
+          print(f"PASS: {len(gd_files)} patched GDScript files, {len(svgs)} SVG assets, South Field contract OK")
+
+      - name: Validate PowerShell syntax
+        shell: pwsh
+        run: |
+          $Errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./APPLY_STEP3.ps1"), [ref]$null, [ref]$Errors
+          )
+          if ($Errors.Count -gt 0) {
+            $Errors | Format-List
+            exit 1
+          }
+          $Errors2 = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path "./payload/tools/static_project_check.ps1"), [ref]$null, [ref]$Errors2
+          )
+          if ($Errors2.Count -gt 0) {
+            $Errors2 | Format-List
+            exit 1
+          }
+          Write-Host "PASS: PowerShell syntax"
+
+      - name: Write QA report
+        shell: bash
+        run: |
+          cat > payload/tests/STEP3_GOLD_MOBILE_STATIC_CHECK_REPORT.txt <<'EOF'
+          STEP 3 GOLD MOBILE - CLOUD STATIC QA
+          RESULT: PASS
+
+          Checked:
+          - required Step-3 payload files present
+          - mobile contract: Sensor Portrait + Expand + explicit touch
+          - 720x1280 runtime content scale contract
+          - MobileCamera and MobileUI scene integration
+          - Safe-area API contract
+          - mobile event-log declaration
+          - South Field 1440x1920 / six Porings / four blockers / ill_field
+          - no ':=' in patched GDScript files
+          - all Step-3 SVG assets XML-parseable
+          - all Step-3 SVG references resolve inside payload
+          - APPLY_STEP3.ps1 and static_project_check.ps1 PowerShell syntax parse
+
+          RUNTIME:
+          No Godot runtime PASS is claimed by this cloud patch build.
+          APPLY_STEP3.ps1 runs real Godot editor/import + mobile smoke checks when a local Godot executable is available.
+          EOF
+
+      - name: Package patch
+        shell: bash
+        run: |
+          mkdir -p dist
+          zip -r -9 dist/Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch.zip             APPLY_STEP3.bat APPLY_STEP3.ps1 STEP3_README.txt payload
+
+      - name: Upload patch artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch
+          path: dist/Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch.zip
+          if-no-files-found: error
+          compression-level: 0
