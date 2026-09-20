@@ -142,16 +142,14 @@ jobs:
           APPLY_STEP3.ps1 runs real Godot editor/import + mobile smoke checks when a local Godot executable is available.
           EOF
 
-      - name: Package patch
-        shell: bash
-        run: |
-          mkdir -p dist
-          zip -r -9 dist/Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch.zip             APPLY_STEP3.bat APPLY_STEP3.ps1 STEP3_README.txt payload
-
       - name: Upload patch artifact
         uses: actions/upload-artifact@v4
         with:
           name: Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch
-          path: dist/Ragnarok_Godot_Core_ILL_Mobile_Step3_Gold_Patch.zip
+          path: |
+            APPLY_STEP3.bat
+            APPLY_STEP3.ps1
+            STEP3_README.txt
+            payload
           if-no-files-found: error
-          compression-level: 0
+          compression-level: 9
